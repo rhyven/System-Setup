@@ -1,0 +1,63 @@
+##################################
+## SECURING SSHD COMMUNICATIONS ##
+##################################
+
+# Only allow SSH2, over port 22.  The actual port can be changed here if needed
+Port 22
+Protocol 2
+
+# Only present secure host keys for authentication
+# No DSA (weak), no ECDSA (NIST is bad; see http://blog.cr.yp.to/20140323-ecdsa.html)
+# Drop the default-generated 2048-bit RSA key, and use the new 4096 instead
+HostKey /etc/ssh/ssh_host_ed25519
+HostKey /etc/ssh/ssh_host_rsa4096
+
+# Only allow secure key exchanges, ciphers, and MACs
+KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
+Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes256-ctr
+MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512,hmac-sha2-256
+
+
+#####################
+## SECURING LOGONS ##
+#####################
+
+AllowGroups ssh-user
+# AllowUsers kim robertn btyres palmers budgettyres leanne leanne leanne leanne jeanine eric compel afauto wotyres canefact aaauto clauauto autosol hamauto tyretrax captyres framodel helen curt2 curt1 eric it david remote paul advauto
+LoginGraceTime 45
+PermitRootLogin no
+StrictModes yes
+RSAAuthentication yes
+PubkeyAuthentication yes
+UsePrivilegeSeparation yes
+PasswordAuthentication no
+UsePAM no
+
+
+####################
+## OTHER SETTINGS ##
+####################
+
+# Logging
+SyslogFacility AUTH
+LogLevel DEBUG
+
+RhostsRSAAuthentication no
+HostbasedAuthentication no
+IgnoreUserKnownHosts yes
+
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+
+X11Forwarding yes
+X11DisplayOffset 10
+PrintMotd no
+PrintLastLog yes
+TCPKeepAlive yes
+ClientAliveInterval 60
+
+# Allow client to pass locale environment variables
+AcceptEnv LANG LC_*
+
+Subsystem sftp /usr/lib/openssh/sftp-server
+
