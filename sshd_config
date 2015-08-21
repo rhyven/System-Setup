@@ -1,3 +1,5 @@
+#### NOTE - make sure you have your public keys working before you use this config file.
+
 ##################################
 ## SECURING SSHD COMMUNICATIONS ##
 ##################################
@@ -6,15 +8,23 @@
 Port 22
 Protocol 2
 
-# Only present secure host keys for authentication
-# No DSA (weak), no ECDSA (NIST is bad; see http://blog.cr.yp.to/20140323-ecdsa.html)
+
+# Only allow secure host keys for authentication
+# No DSA (weak), no ECDSA (avoid NIST; re http://blog.cr.yp.to/20140323-ecdsa.html)
 # Drop the default-generated 2048-bit RSA key, and use the new 4096 instead
+# Re ED21159 vs RSA 4096: http://security.stackexchange.com/questions/90077/ssh-key-ed25519-vs-rsa
 HostKey /etc/ssh/ssh_host_ed25519
 HostKey /etc/ssh/ssh_host_rsa4096
 
-# Only allow secure key exchanges, ciphers, and MACs
+
+# Only allow the most secure key exchanges, ciphers, and MACs.  Include a few extra for compatibility.
+# Curve25519 isn't using NIST curves (yay), and is immune to several side-channel attacks: http://ed25519.cr.yp.to/
 KexAlgorithms curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256
+
+# Prefer Chacha20 (also allow strong AES): http://googleonlinesecurity.blogspot.co.nz/2014/04/speeding-up-and-strengthening-https.html
 Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes256-ctr
+
+# SHA2 only; prefer Encrypt-Then-MAC options, and prefer 512b options
 MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512,hmac-sha2-256
 
 
@@ -22,15 +32,29 @@ MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512,h
 ## SECURING LOGONS ##
 #####################
 
-AllowGroups ssh-user
-# AllowUsers kim robertn btyres palmers budgettyres leanne leanne leanne leanne jeanine eric compel afauto wotyres canefact aaauto clauauto autosol hamauto tyretrax captyres framodel helen curt2 curt1 eric it david remote paul advauto
+# An ssh-user group is a very handy way to control SSH access when you don't want all users accessing it
+# Uncomment this line AFTER you've created an ssh-user group, if you're going to use it  :)
+# AllowGroups ssh-user
+
+# Reduced login time simply makes the window smaller for nefarious access
 LoginGraceTime 45
+
+# Prevent the root user from logging on remotely; helps keep the root account safe from brute-force attacks 
 PermitRootLogin no
+
+# Ensures file permissions for keys etc are all OK before accepting login
 StrictModes yes
-RSAAuthentication yes
+
+# Force use of public keys, and deny password authentication
 PubkeyAuthentication yes
-UsePrivilegeSeparation yes
 PasswordAuthentication no
+
+# Using 'sandbox' mode further restricts the pre-authentication process, limiting system calls
+# See http://cvsweb.openbsd.org/cgi-bin/cvsweb/src/usr.bin/ssh/sshd/Makefile?rev=1.73&content-type=text/x-cvsweb-markup 
+UsePrivilegeSeparation sandbox
+
+# Disable additional access vectors proivded by PAM
+# You COULD use PAM to provide more sophisticated security, but if you're not, just disable it
 UsePAM no
 
 
@@ -38,26 +62,18 @@ UsePAM no
 ## OTHER SETTINGS ##
 ####################
 
-# Logging
-SyslogFacility AUTH
-LogLevel DEBUG
+# Setting Logging to VERBOSE will log key fingerprints on login; helps with access auditing!
+# From https://wiki.mozilla.org/Security/Guidelines/OpenSSH#OpenSSH_server
+LogLevel VERBOSE
 
-RhostsRSAAuthentication no
-HostbasedAuthentication no
+# Honestly not sure why I've used these.
 IgnoreUserKnownHosts yes
-
-PermitEmptyPasswords no
 ChallengeResponseAuthentication no
 
-X11Forwarding yes
-X11DisplayOffset 10
+# Not really desired in our environment
 PrintMotd no
-PrintLastLog yes
-TCPKeepAlive yes
+
+# Periodically makes sure the client is still alive
 ClientAliveInterval 60
 
-# Allow client to pass locale environment variables
-AcceptEnv LANG LC_*
-
 Subsystem sftp /usr/lib/openssh/sftp-server
-
