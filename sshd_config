@@ -73,6 +73,10 @@ ChallengeResponseAuthentication no
 # Not really desired in our environment
 PrintMotd no
 
+# Disable X11 forwarding; there's little benefit, and it's vulnerable:  https://twitter.com/RhyvenNZ/status/635671563543511040
+# It's disabled by default anyway, but explicit is good.
+X11Forwarding no
+
 # Periodically makes sure the client is still alive
 ClientAliveInterval 60
 
