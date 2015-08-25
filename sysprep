@@ -1,0 +1,28 @@
+#! /bin/bash
+
+echo -n "MAKE SURE YOU'RE RUNNING AS SUDO!  If not, press Ctrl+C NOW."
+sleep 1
+echo -n "."
+sleep 1
+echo -n "."
+sleep 1
+echo -n "."
+sleep 1
+echo -n "."
+sleep 1
+
+
+# Create 4096-bit RSA key
+ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa4096 < /dev/null
+
+# Make sure only long primes in ./moduli
+ssh-keygen -G /tmp/moduli -b 4096 && ssh-keygen -T /etc/ssh/moduli -f /tmp/moduli
+
+# Create ~/.ssh/authorized_keys
+mkdir ~/.ssh
+echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGOOmq7XITJLExEheDCdDvlAyzSbMU0/PWXWoxc5V/5o Eric's PC" > ~/.ssh/authorized_keys
+
+apt-get install curl
+curl https://raw.githubusercontent.com/rhyven/ssh/master/sshd_config > /tmp/sshd_config
+mv /tmp/sshd_config /etc/ssh/sshd_config -f
+
