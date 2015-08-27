@@ -11,6 +11,12 @@ sleep 1
 echo -n "."
 sleep 1
 
+apt-get update && apt-get upgrade -y
+
+apt-get install sudo openssh-server fail2ban unattended-upgrades -y
+
+dpkg-reconfigure -plow unattended-upgrades 
+
 
 # Create 4096-bit RSA key
 ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa4096 < /dev/null
@@ -26,3 +32,4 @@ apt-get install curl
 curl https://raw.githubusercontent.com/rhyven/ssh/master/sshd_config > /tmp/sshd_config
 mv /tmp/sshd_config /etc/ssh/sshd_config -f
 
+service ssh restart
