@@ -1,8 +1,5 @@
 #### NOTE - make sure you have your public keys working before you use this config file.
 
-# Most of this development has been guided by Stribika's "Secure Secure Shell" post
-# found here: http://stribika.github.io/2015/01/04/secure-secure-shell.html
-
 ##################################
 ## SECURING SSHD COMMUNICATIONS ##
 ##################################
