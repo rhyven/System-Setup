@@ -1,6 +1,6 @@
 #! /bin/bash
 
-echo -n "MAKE SURE YOU'RE RUNNING AS SUDO!  If not, press Ctrl+C NOW."
+echo -n "MAKE SURE YOU'RE RUNNING AS ROOT!  If not, press Ctrl+C NOW."
 sleep 1
 echo -n "."
 sleep 1
@@ -15,6 +15,8 @@ apt-get update && apt-get upgrade -y
 
 apt-get install sudo openssh-server fail2ban unattended-upgrades -y
 
+usermod -aG sudo it
+
 dpkg-reconfigure -plow unattended-upgrades 
 
 
@@ -26,7 +28,7 @@ ssh-keygen -G /tmp/moduli -b 4096 && ssh-keygen -T /etc/ssh/moduli -f /tmp/modul
 
 # Create ~/.ssh/authorized_keys
 mkdir ~/.ssh
-echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGOOmq7XITJLExEheDCdDvlAyzSbMU0/PWXWoxc5V/5o Eric's PC" > ~/.ssh/authorized_keys
+echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGOOmq7XITJLExEheDCdDvlAyzSbMU0/PWXWoxc5V/5o Eric's PC" > /home/it/.ssh/authorized_keys
 
 apt-get install curl
 curl https://raw.githubusercontent.com/rhyven/ssh/master/sshd_config > /tmp/sshd_config
