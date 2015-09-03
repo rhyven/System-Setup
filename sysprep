@@ -33,16 +33,21 @@ update-grub
 # Create 4096-bit RSA key
 ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa4096 < /dev/null
 
-# Make sure only long primes in ./moduli
-ssh-keygen -G /tmp/moduli -b 4096 && ssh-keygen -T /etc/ssh/moduli -f /tmp/moduli
-
 # Create ~/.ssh/authorized_keys
-mkdir ~/.ssh
+mkdir /home/it/.ssh
 echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGOOmq7XITJLExEheDCdDvlAyzSbMU0/PWXWoxc5V/5o Eric's PC" > /home/it/.ssh/authorized_keys
+chown it:it /home/it/.ssh
+chown it:it /home/it/.ssh/*
+chmod 600 /home/it/.ssh/authorized_keys
 
-wget https://raw.githubusercontent.com/rhyven/ssh/master/sshd_config
+
+wget --no-check-certificate https://raw.githubusercontent.com/rhyven/ssh/master/sshd_config
 mv sshd_config /etc/ssh/sshd_config -f
 
 service ssh restart
+
+echo -e "ssh-keygen -G /tmp/moduli -b 4096 && ssh-keygen -T /etc/ssh/moduli -f /tmp/moduli" > moduli
+chmod a+x moduli
+echo "Execute ./moduli when you've got some time to kill."
 
 echo "REBOOT NOW, really!!"
