@@ -15,10 +15,20 @@ apt-get update && apt-get upgrade -y
 
 apt-get install sudo openssh-server fail2ban unattended-upgrades -y
 
+apt-get remove rpcbind exim4 -y
+
+addgroup sshuser
+
+usermod -aG sshuser it
 usermod -aG sudo it
 
 dpkg-reconfigure -plow unattended-upgrades 
 
+apt-get install apparmor apparmor-profiles apparmor-utils -y
+
+perl -pi -e 's,GRUB_CMDLINE_LINUX="(.*)"$,GRUB_CMDLINE_LINUX="$1 apparmor=1 security=apparmor",' /etc/default/grub
+for f in *.* ; do aa-enforce /etc/apparmor.d/$f; done
+update-grub
 
 # Create 4096-bit RSA key
 ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa4096 < /dev/null
@@ -30,8 +40,9 @@ ssh-keygen -G /tmp/moduli -b 4096 && ssh-keygen -T /etc/ssh/moduli -f /tmp/modul
 mkdir ~/.ssh
 echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGOOmq7XITJLExEheDCdDvlAyzSbMU0/PWXWoxc5V/5o Eric's PC" > /home/it/.ssh/authorized_keys
 
-apt-get install curl
-curl https://raw.githubusercontent.com/rhyven/ssh/master/sshd_config > /tmp/sshd_config
-mv /tmp/sshd_config /etc/ssh/sshd_config -f
+wget https://raw.githubusercontent.com/rhyven/ssh/master/sshd_config
+mv sshd_config /etc/ssh/sshd_config -f
 
 service ssh restart
+
+echo "REBOOT NOW, really!!"
