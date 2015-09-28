@@ -11,24 +11,57 @@ sleep 1
 echo -n "."
 sleep 1
 
+## Tweaks from https://klaver.it/linux/debian-security.txt:
+
+# most tools send e-mail to root@localhost; redirect this to a working e-mail address:
+echo "root: alerts@forlongs.co.nz" >> /etc/aliases
+newaliases
+
+# remove or take away permissions of all system tools that can be used to download files at the command-line
+chmod 700 /usr/bin/wget /usr/bin/curl /usr/bin/GET /usr/bin/ftp /usr/bin/telnet
+dpkg -P lynx links
+
+# Disable cron-jobs (exept for the root user)
+echo root > /etc/cron.allow
+/etc/init.d/cron restart
+
+# Let the server fix it's filesystem automatically when errors are found
+echo "FSCKFIX=yes" >> /etc/default/rcS
+
+## Tweaks from fmarier at http://feeding.cloud.geek.nz/posts/usual-server-setup/
+
 apt-get update && apt-get upgrade -y
 
-apt-get install sudo openssh-server fail2ban unattended-upgrades -y
-
+apt-get install sudo openssh-server fail2ban unattended-upgrades debsums -y
 apt-get remove rpcbind exim4 -y
+
+# Have debsums check checksums daily
+sed -i 's/CRON_CHECK=never/CRON_CHECK=daily/g' /etc/default/debsums 
+
 
 addgroup sshuser
 
 usermod -aG sshuser it
 usermod -aG sudo it
 
+# Configure Unattended-Upgrades.  NOTE this config will reboot at 2am if reboot required
 dpkg-reconfigure -plow unattended-upgrades 
+echo -e "Unattended-Upgrade::Origins-Pattern {\n\"o=Debian,n=jessie\";\n\"o=Debian,n=jessie-updates\";\n\"o=Debian,n=jessie,l=Debian-Security\";\n};\nUnattended-Upgrade::Mail \"alerts@forlongs.co.nz\";\nUnattended-Upgrade::MailOnlyOnError \"true\";\nUnattended-Upgrade::Remove-Unused-Dependencies \"true\";\nUnattended-Upgrade::Automatic-Reboot \"true\";\nUnattended-Upgrade::Automatic-Reboot-Time \"02:00\";\n" > /etc/apt/apt.conf.d/50unattended-upgrades
 
+
+# Install and enable AppArmor
 apt-get install apparmor apparmor-profiles apparmor-utils -y
-
 perl -pi -e 's,GRUB_CMDLINE_LINUX="(.*)"$,GRUB_CMDLINE_LINUX="$1 apparmor=1 security=apparmor",' /etc/default/grub
 for f in *.* ; do aa-enforce /etc/apparmor.d/$f; done
-update-grub
+
+
+# Tweaks to sysctl.conf kernel settings
+wget --no-check-certificate https://klaver.it/linux/sysctl.conf
+# Change Michiel Klaver's default settings
+sed -i 's/net.core.default_qdisc = fq/net.core.default_qdisc = fq_codel/g' sysctl.conf 
+sed -i 's/net.ipv4.tcp_congestion_control = htcp/net.ipv4.tcp_congestion_control = cubic/g' sysctl.conf
+mv sysctl.conf /etc -f
+
 
 # Create 4096-bit RSA key
 ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa4096 < /dev/null
@@ -40,11 +73,11 @@ chown it:it /home/it/.ssh
 chown it:it /home/it/.ssh/*
 chmod 600 /home/it/.ssh/authorized_keys
 
-
+# Download and overwrite SSHD config file
 wget --no-check-certificate https://raw.githubusercontent.com/rhyven/ssh/master/sshd_config
 mv sshd_config /etc/ssh/sshd_config -f
-
 service ssh restart
+
 
 echo -e "ssh-keygen -G /tmp/moduli -b 4096 && ssh-keygen -T /etc/ssh/moduli -f /tmp/moduli" > moduli
 chmod a+x moduli
