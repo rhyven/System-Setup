@@ -54,9 +54,9 @@ dpkg-reconfigure -plow unattended-upgrades
 echo -e "Unattended-Upgrade::Origins-Pattern {\n\"o=Debian,n=jessie\";\n\"o=Debian,n=jessie-updates\";\n\"o=Debian,n=jessie,l=Debian-Security\";\n};\nUnattended-Upgrade::Mail \"alerts@forlongs.co.nz\";\nUnattended-Upgrade::MailOnlyOnError \"true\";\nUnattended-Upgrade::Remove-Unused-Dependencies \"true\";\nUnattended-Upgrade::Automatic-Reboot \"true\";\nUnattended-Upgrade::Automatic-Reboot-Time \"02:00\";\n" > /etc/apt/apt.conf.d/50unattended-upgrades
 
 
-# Install and enable AppArmor
+# Install and enable AppArmor; disable IPv6 stack
 apt-get install apparmor apparmor-profiles apparmor-utils -y
-perl -pi -e 's,GRUB_CMDLINE_LINUX="(.*)"$,GRUB_CMDLINE_LINUX="$1 apparmor=1 security=apparmor",' /etc/default/grub
+perl -pi -e 's,GRUB_CMDLINE_LINUX="(.*)"$,GRUB_CMDLINE_LINUX="$1 apparmor=1 security=apparmor ipv6.disable=1",' /etc/default/grub
 for f in *.* ; do aa-enforce /etc/apparmor.d/$f; done
 
 
@@ -67,6 +67,9 @@ sed -i 's/net.core.default_qdisc = fq/net.core.default_qdisc = fq_codel/g' sysct
 sed -i 's/net.ipv4.tcp_congestion_control = htcp/net.ipv4.tcp_congestion_control = cubic/g' sysctl.conf
 echo -e "kernel.core_pattern=/var/crash/core-%e-%s-%u-%g-%p-%t" >> sysctl.conf
 mv sysctl.conf /etc -f
+
+# Commit kernel changes
+update-grub
 
 
 # Create 4096-bit RSA key
