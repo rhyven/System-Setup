@@ -34,7 +34,7 @@ apt-get install sudo openssh-server fail2ban unattended-upgrades debsums ssmtp -
 apt-get purge rpcbind exim4 sendmail sendmail-* postfix -y
 
 # Set up SSMTP
-echo -e "mailhub="$MailServer"\nroot=postmaster\nhostname="$(hostname -f) > /etc/ssmtp/ssmtp.conf
+echo -e "mailhub="$MailServer"\nroot=it@forlongs.co.nz\nhostname="$(hostname -f) > /etc/ssmtp/ssmtp.conf
 
 
 # most tools send e-mail to root@localhost; redirect this to a working e-mail address:
