@@ -13,7 +13,7 @@ Protocol 2
 # No DSA (weak), no ECDSA (avoid NIST; re http://blog.cr.yp.to/20140323-ecdsa.html)
 # Drop the default-generated 2048-bit RSA key, and use the new 4096 instead
 # Re ED21159 vs RSA 4096: http://security.stackexchange.com/questions/90077/ssh-key-ed25519-vs-rsa
-HostKey /etc/ssh/ssh_host_ed25519
+HostKey /etc/ssh/ssh_host_ed25519_key
 HostKey /etc/ssh/ssh_host_rsa4096
 
 
