@@ -84,6 +84,9 @@ wget --no-check-certificate https://raw.githubusercontent.com/rhyven/ssh/master/
 mv sshd_config /etc/ssh/sshd_config -f
 service ssh restart
 
+# Security tweaks for /etc/profile
+echo -e "TMOUT=300\nreadonly TMOUT\nexport TMOUT\numask 027">> /etc/profile
+
 
 echo -e "ssh-keygen -G /tmp/moduli -b 4096 && ssh-keygen -T /etc/ssh/moduli -f /tmp/moduli" > moduli
 echo -e "rm ./moduli" >> moduli
