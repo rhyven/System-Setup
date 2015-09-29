@@ -1,6 +1,8 @@
 #! /bin/bash
 
-echo -n "MAKE SURE YOU'RE RUNNING AS ROOT!  If not, press Ctrl+C NOW."
+MailServer=fibre.forlongs.co.nz
+
+echo -n "MAKE SURE YOU'RE RUNNING AS ROOT! And make sure you've modified the mail server in this file -- currently $MailServer.  If not, press Ctrl+C NOW."
 sleep 1
 echo -n "."
 sleep 1
@@ -12,10 +14,6 @@ echo -n "."
 sleep 1
 
 ## Tweaks from https://klaver.it/linux/debian-security.txt:
-
-# most tools send e-mail to root@localhost; redirect this to a working e-mail address:
-echo "root: alerts@forlongs.co.nz" >> /etc/aliases
-newaliases
 
 # remove or take away permissions of all system tools that can be used to download files at the command-line
 chmod 700 /usr/bin/wget /usr/bin/curl /usr/bin/GET /usr/bin/ftp /usr/bin/telnet
@@ -34,6 +32,15 @@ apt-get update && apt-get upgrade -y
 
 apt-get install sudo openssh-server fail2ban unattended-upgrades debsums ssmtp -y
 apt-get purge rpcbind exim4 sendmail sendmail-* postfix -y
+
+# Set up SSMTP
+echo -e "mailhub="$MailServer"\nroot=postmaster\nhostname="$(hostname -f) > /etc/ssmtp/ssmtp.conf
+
+
+# most tools send e-mail to root@localhost; redirect this to a working e-mail address:
+echo "root: alerts@forlongs.co.nz" >> /etc/aliases
+newaliases
+
 
 # Entropy & time-keeping
 apt-get install haveged rng-tools ntp -y
