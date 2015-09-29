@@ -33,15 +33,20 @@ echo "FSCKFIX=yes" >> /etc/default/rcS
 apt-get update && apt-get upgrade -y
 
 apt-get install sudo openssh-server fail2ban unattended-upgrades debsums ssmtp -y
-apt-get remove rpcbind exim4 sendmail sendmail-* postfix -y
+apt-get purge rpcbind exim4 sendmail sendmail-* postfix -y
+
+# Entropy & time-keeping
+apt-get install haveged rng-tools ntp -y
+echo tpm_rng >> /etc/modules
+
+# Disable USB & Firewire storage
+echo -e "blacklist usb-storage\nblacklist ohci1394\nblacklist sbp2\nblacklist dv1394\nblacklist raw1394\nblacklist video1394\nblacklist firewire-ohci\nblacklist firewire-sbp2" > /etc/modprobe.d/blacklist_storage.conf
 
 # Have debsums check checksums daily
 sed -i 's/CRON_CHECK=never/CRON_CHECK=daily/g' /etc/default/debsums 
 
-
-addgroup sshuser
-
-usermod -aG sshuser it
+addgroup ssh-user
+usermod -aG ssh-user it
 usermod -aG sudo it
 
 # Configure Unattended-Upgrades.  NOTE this config will reboot at 2am if reboot required
@@ -81,6 +86,7 @@ service ssh restart
 
 
 echo -e "ssh-keygen -G /tmp/moduli -b 4096 && ssh-keygen -T /etc/ssh/moduli -f /tmp/moduli" > moduli
+echo -e "rm ./moduli" >> moduli
 chmod a+x moduli
 echo "Execute ./moduli when you've got some time to kill."
 
