@@ -32,14 +32,17 @@ apt-get update && apt-get upgrade -y
 apt-get install sudo openssh-server fail2ban unattended-upgrades debsums ssmtp -y
 apt-get purge rpcbind exim4 sendmail sendmail-* postfix -y
 
+# Fix Tiger for Linux 4 - https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=785589
+cd /usr/lib/tiger/systems/Linux/
+sudo ln -s 3 4
+
+
 # Set up SSMTP
 echo -e "mailhub="$MailServer"\nroot="$EmailAddress"\nhostname="$(hostname -f) > /etc/ssmtp/ssmtp.conf
-
 
 # most tools send e-mail to root@localhost; redirect this to a working e-mail address:
 echo "root: "$EmailAddress >> /etc/aliases
 newaliases
-
 
 # Entropy & time-keeping
 apt-get install haveged rng-tools ntp -y
