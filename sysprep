@@ -1,5 +1,5 @@
 #! /bin/bash
-
+EmailAddress=it@forlongs.co.nz
 MailServer=fibre.forlongs.co.nz
 
 echo -n "MAKE SURE YOU'RE RUNNING AS ROOT! And make sure you've modified the mail server in this file -- currently $MailServer.  If not, press Ctrl+C NOW."
@@ -9,7 +9,7 @@ sleep 1
 echo -n "."
 sleep 1
 echo -n "."
-sleep 1
+sleep 1it
 echo -n "."
 sleep 1
 
@@ -29,16 +29,15 @@ echo "FSCKFIX=yes" >> /etc/default/rcS
 ## Tweaks from fmarier at http://feeding.cloud.geek.nz/posts/usual-server-setup/
 
 apt-get update && apt-get upgrade -y
-
 apt-get install sudo openssh-server fail2ban unattended-upgrades debsums ssmtp -y
 apt-get purge rpcbind exim4 sendmail sendmail-* postfix -y
 
 # Set up SSMTP
-echo -e "mailhub="$MailServer"\nroot=it@forlongs.co.nz\nhostname="$(hostname -f) > /etc/ssmtp/ssmtp.conf
+echo -e "mailhub="$MailServer"\nroot="$EmailAddress"\nhostname="$(hostname -f) > /etc/ssmtp/ssmtp.conf
 
 
 # most tools send e-mail to root@localhost; redirect this to a working e-mail address:
-echo "root: alerts@forlongs.co.nz" >> /etc/aliases
+echo "root: "$EmailAddress >> /etc/aliases
 newaliases
 
 
@@ -96,6 +95,11 @@ service ssh restart
 
 # Security tweaks for /etc/profile
 echo -e "TMOUT=300\nreadonly TMOUT\nexport TMOUT\numask 027">> /etc/profile
+
+# Configure Tripwire to send emails
+sed -i 's/localhost/'$MailServer'/g' /etc/tripwire/twcfg.txt
+twadmin --create-cfgfile -S /etc/tripwire/site.key /etc/tripwire/twcfg.txt 
+tripwire --test --email $EmailAddress
 
 
 echo -e "ssh-keygen -G /tmp/moduli -b 4096 && ssh-keygen -T /etc/ssh/moduli -f /tmp/moduli" > moduli
