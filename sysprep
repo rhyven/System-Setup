@@ -19,6 +19,9 @@ sleep 1
 chmod 700 /usr/bin/wget /usr/bin/curl /usr/bin/GET /usr/bin/ftp /usr/bin/telnet 2> /dev/null
 dpkg -P lynx links 2> /dev/null
 
+# Knobble auto-installed compiler
+mv /usr/bin/as ~
+
 # Disable cron-jobs (exept for the root user)
 echo root > /etc/cron.allow
 service cron restart
@@ -101,6 +104,10 @@ service ssh restart
 echo -e "TMOUT=300\nreadonly TMOUT\nexport TMOUT\numask 027" >> /etc/profile
 sed -i 's/UMASK\t\t022/UMASK\t\t027/g' /etc/login.defs
 sed -i 's/umask 022/umask 027/g' /etc/init.d/rc
+
+# Use NZ ntp pool
+sed -i 's/debian.pool.ntp/nz.pool.ntp/g' /etc/ntp.conf
+
 
 # Build sysprep2
 # Configure Tripwire to send emails
