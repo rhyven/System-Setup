@@ -99,8 +99,8 @@ service ssh restart
 
 # Security tweaks for /etc/profile
 echo -e "TMOUT=300\nreadonly TMOUT\nexport TMOUT\numask 027" >> /etc/profile
-echo "umask 027" >> /etc/login.defs
-echo "umask 027" >> /etc/init.d/rc
+sed -i 's/UMASK\t\t022/UMASK\t\t027/g' /etc/login.defs
+sed -i 's/umask 022/umask 027/g' /etc/init.d/rc
 
 # Build sysprep2
 # Configure Tripwire to send emails
@@ -113,6 +113,8 @@ echo "sudo twadmin --create-cfgfile -S /etc/tripwire/site.key /etc/tripwire/twcf
 echo "tripwire --test --email "$EmailAddress >> sysprep2
 # Purge unwanted packages
 echo "apt-get purge john john-data rpcbind exim4 sendmail sendmail-* postfix -y 2> /dev/null"  >> sysprep2
+# Enable AllowGroups under sshd_config (you're using SSH already, right???)
+echo "sudo sed -i 's/# AllowGroups/AllowGroups/g' /etc/ssh/sshd_config" >> sysprep2
 # Notes for next boot
 echo "Check http://www.linuxquestions.org/questions/linux-newbie-8/tripwire-help-4175478323/"   >> sysprep2
 echo "and https://www.digitalocean.com/community/tutorials/how-to-use-tripwire-to-detect-server-intrusions-on-an-ubuntu-vps"  >> sysprep2
