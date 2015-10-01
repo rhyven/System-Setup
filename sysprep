@@ -9,19 +9,19 @@ sleep 1
 echo -n "."
 sleep 1
 echo -n "."
-sleep 1it
+sleep 1
 echo -n "."
 sleep 1
 
 ## Tweaks from https://klaver.it/linux/debian-security.txt:
 
 # remove or take away permissions of all system tools that can be used to download files at the command-line
-chmod 700 /usr/bin/wget /usr/bin/curl /usr/bin/GET /usr/bin/ftp /usr/bin/telnet
-dpkg -P lynx links
+chmod 700 /usr/bin/wget /usr/bin/curl /usr/bin/GET /usr/bin/ftp /usr/bin/telnet 2> /dev/null
+dpkg -P lynx links 2> /dev/null
 
 # Disable cron-jobs (exept for the root user)
 echo root > /etc/cron.allow
-/etc/init.d/cron restart
+service cron restart
 
 # Let the server fix it's filesystem automatically when errors are found
 echo "FSCKFIX=yes" >> /etc/default/rcS
@@ -29,13 +29,7 @@ echo "FSCKFIX=yes" >> /etc/default/rcS
 ## Tweaks from fmarier at http://feeding.cloud.geek.nz/posts/usual-server-setup/
 
 apt-get update && apt-get upgrade -y
-apt-get install sudo openssh-server fail2ban unattended-upgrades debsums ssmtp -y
-apt-get purge rpcbind exim4 sendmail sendmail-* postfix -y
-
-# Fix Tiger for Linux 4 - https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=785589
-cd /usr/lib/tiger/systems/Linux/
-sudo ln -s 3 4
-
+apt-get install sudo openssh-server fail2ban unattended-upgrades debsums ssmtp tiger -y
 
 # Set up SSMTP
 echo -e "mailhub="$MailServer"\nroot="$EmailAddress"\nhostname="$(hostname -f) > /etc/ssmtp/ssmtp.conf
@@ -70,6 +64,7 @@ for f in *.* ; do aa-enforce /etc/apparmor.d/$f; done
 
 
 # Tweaks to sysctl.conf kernel settings
+cd ~
 wget --no-check-certificate https://klaver.it/linux/sysctl.conf
 # Change Michiel Klaver's default settings
 sed -i 's/net.core.default_qdisc = fq/net.core.default_qdisc = fq_codel/g' sysctl.conf 
@@ -98,21 +93,29 @@ mv sshd_config /etc/ssh/sshd_config -f
 service ssh restart
 
 # Security tweaks for /etc/profile
-echo -e "TMOUT=300\nreadonly TMOUT\nexport TMOUT\numask 027">> /etc/profile
+echo -e "TMOUT=300\nreadonly TMOUT\nexport TMOUT\numask 027" >> /etc/profile
 
+# Build sysprep2
 # Configure Tripwire to send emails
-sed -i 's/localhost/'$MailServer'/g' /etc/tripwire/twcfg.txt
-twadmin --create-cfgfile -S /etc/tripwire/site.key /etc/tripwire/twcfg.txt 
-tripwire --test --email $EmailAddress
-
-echo "Check http://www.linuxquestions.org/questions/linux-newbie-8/tripwire-help-4175478323/"
-echo "and https://www.digitalocean.com/community/tutorials/how-to-use-tripwire-to-detect-server-intrusions-on-an-ubuntu-vps"
-echo "for help on setting up Tripwire."
-echo "NOTE - you probably don't need /proc/dma; /proc/scsi; or /proc/kcore."
+echo "sudo apt-get install tripwire tiger -y" > sysprep2
+# Fix Tiger for Linux 4 - https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=785589
+echo -e "cd /usr/lib/tiger/systems/Linux/\nsudo ln -s 3 4" >> sysprep2
+# Configure Tripwire to send emails
+echo "sudo sed -i 's/localhost/$MailServer/g' /etc/tripwire/twcfg.txt" >> sysprep2
+echo "sudo twadmin --create-cfgfile -S /etc/tripwire/site.key /etc/tripwire/twcfg.txt" >> sysprep2
+echo "tripwire --test --email "$EmailAddress >> sysprep2
+# Purge unwanted packages
+echo "apt-get purge john john-data rpcbind exim4 sendmail sendmail-* postfix -y 2> /dev/null"  >> sysprep2
+# Notes for next boot
+echo "Check http://www.linuxquestions.org/questions/linux-newbie-8/tripwire-help-4175478323/"   >> sysprep2
+echo "and https://www.digitalocean.com/community/tutorials/how-to-use-tripwire-to-detect-server-intrusions-on-an-ubuntu-vps"  >> sysprep2
+echo "for help on setting up Tripwire."  >> sysprep2
+echo "NOTE - you probably don't need /proc/dma; /proc/scsi; or /proc/kcore."  >> sysprep2
+echo "Execute ./moduli when you've got some time to kill."   >> sysprep2
 
 echo -e "ssh-keygen -G /tmp/moduli -b 4096 && ssh-keygen -T /etc/ssh/moduli -f /tmp/moduli" > moduli
 echo -e "rm ./moduli" >> moduli
 chmod a+x moduli
-echo "Execute ./moduli when you've got some time to kill."
 
-echo "REBOOT NOW, really!!"
+echo "REBOOT NOW, and then run bash ./sysprep2"
+rm ./sysprep
