@@ -29,7 +29,12 @@ echo "FSCKFIX=yes" >> /etc/default/rcS
 ## Tweaks from fmarier at http://feeding.cloud.geek.nz/posts/usual-server-setup/
 
 apt-get update && apt-get upgrade -y
-apt-get install sudo openssh-server fail2ban unattended-upgrades debsums ssmtp tiger -y
+apt-get install sudo openssh-server fail2ban unattended-upgrades debsums ssmtp unzip -y
+
+# Download Lynis
+cd ~
+wget https://github.com/CISOfy/lynis/archive/master.zip --no-check-certificate
+unzip master.zip
 
 # Set up SSMTP
 echo -e "mailhub="$MailServer"\nroot="$EmailAddress"\nhostname="$(hostname -f) > /etc/ssmtp/ssmtp.conf
@@ -94,6 +99,8 @@ service ssh restart
 
 # Security tweaks for /etc/profile
 echo -e "TMOUT=300\nreadonly TMOUT\nexport TMOUT\numask 027" >> /etc/profile
+echo "umask 027" >> /etc/login.defs
+echo "umask 027" >> /etc/init.d/rc
 
 # Build sysprep2
 # Configure Tripwire to send emails
