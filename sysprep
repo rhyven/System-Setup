@@ -74,7 +74,8 @@ wget --no-check-certificate https://klaver.it/linux/sysctl.conf
 # Change Michiel Klaver's default settings
 sed -i 's/net.core.default_qdisc = fq/net.core.default_qdisc = fq_codel/g' sysctl.conf 
 sed -i 's/net.ipv4.tcp_congestion_control = htcp/net.ipv4.tcp_congestion_control = cubic/g' sysctl.conf
-echo -e "kernel.core_pattern=/var/crash/core-%e-%s-%u-%g-%p-%t" >> sysctl.conf
+echo -e "kernel.core_pattern=/var/crash/core-%e-%s-%u-%g-%p-%t\n" >> sysctl.conf
+echo -e "kernel.modules_disabled=1\n" >> sysctl.conf
 mv sysctl.conf /etc -f
 
 # Commit kernel changes
