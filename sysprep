@@ -108,6 +108,9 @@ sed -i 's/umask 022/umask 027/g' /etc/init.d/rc
 # Use NZ ntp pool
 sed -i 's/debian.pool.ntp/nz.pool.ntp/g' /etc/ntp.conf
 
+# Load iptables as a module
+echo ip_tables >> /etc/modules
+
 
 # Build sysprep2
 # Configure Tripwire to send emails
