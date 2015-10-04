@@ -32,7 +32,7 @@ echo "FSCKFIX=yes" >> /etc/default/rcS
 ## Tweaks from fmarier at http://feeding.cloud.geek.nz/posts/usual-server-setup/
 
 apt-get update && apt-get upgrade -y
-apt-get install sudo openssh-server fail2ban unattended-upgrades debsums ssmtp unzip -y
+apt-get install sudo openssh-server fail2ban unattended-upgrades debsums ssmtp unzip curl -y
 
 # Download Lynis
 cd ~
@@ -113,10 +113,15 @@ echo ip_tables >> /etc/modules
 
 
 # Build sysprep2
-# Configure Tripwire to send emails
+# Install Tripwire and Tiger
 echo "sudo apt-get install tripwire tiger -y" > sysprep2
+
 # Fix Tiger for Linux 4 - https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=785589
 echo -e "cd /usr/lib/tiger/systems/Linux/\nsudo ln -s 3 4" >> sysprep2
+
+# Tell Tiger that sshd and ntpd are both OK
+echo -e "sudo sed -i 's/Tiger_Listening_ValidProcs='\''/Tiger_Listening_ValidProcs='\''sshd|ntpd''/g' /etc/tiger/tigerrc" >> sysprep2
+
 # Configure Tripwire to send emails
 echo "sudo sed -i 's/localhost/$MailServer/g' /etc/tripwire/twcfg.txt" >> sysprep2
 echo "sudo twadmin --create-cfgfile -S /etc/tripwire/site.key /etc/tripwire/twcfg.txt" >> sysprep2
