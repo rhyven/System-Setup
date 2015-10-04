@@ -54,7 +54,10 @@ echo tpm_rng >> /etc/modules
 echo -e "blacklist usb-storage\nblacklist ohci1394\nblacklist sbp2\nblacklist dv1394\nblacklist raw1394\nblacklist video1394\nblacklist firewire-ohci\nblacklist firewire-sbp2" > /etc/modprobe.d/blacklist_storage.conf
 
 # Have debsums check checksums daily
-sed -i 's/CRON_CHECK=never/CRON_CHECK=daily/g' /etc/default/debsums 
+sed -i 's/CRON_CHECK=never/CRON_CHECK=daily/g' /etc/default/debsums
+
+# Ignore the missing 'as' compiler
+echo -e "^/usr/bin/as$" > /etc/debsums-ignore
 
 addgroup ssh-user
 usermod -aG ssh-user it
