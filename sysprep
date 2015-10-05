@@ -111,10 +111,6 @@ sed -i 's/umask 022/umask 027/g' /etc/init.d/rc
 # Use NZ ntp pool
 sed -i 's/debian.pool.ntp/nz.pool.ntp/g' /etc/ntp.conf
 
-# Load iptables as a module
-echo ip_tables >> /etc/modules
-
-
 # Build sysprep2
 # Install Tripwire and Tiger
 echo "sudo apt-get install tripwire tiger -y" > sysprep2
@@ -130,7 +126,7 @@ echo "sudo sed -i 's/localhost/$MailServer/g' /etc/tripwire/twcfg.txt" >> syspre
 echo "sudo twadmin --create-cfgfile -S /etc/tripwire/site.key /etc/tripwire/twcfg.txt" >> sysprep2
 echo "tripwire --test --email "$EmailAddress >> sysprep2
 # Purge unwanted packages
-echo "apt-get purge john john-data rpcbind exim4 sendmail sendmail-* postfix -y 2> /dev/null"  >> sysprep2
+echo "apt-get purge ufw iptables john john-data rpcbind exim4 sendmail sendmail-* postfix -y 2> /dev/null"  >> sysprep2
 # Enable AllowGroups under sshd_config (you're using SSH already, right???)
 echo "sudo sed -i 's/# AllowGroups/AllowGroups/g' /etc/ssh/sshd_config" >> sysprep2
 # Notes for next boot
