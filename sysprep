@@ -29,7 +29,7 @@ echo "FSCKFIX=yes" >> /etc/default/rcS
 ## Tweaks from fmarier at http://feeding.cloud.geek.nz/posts/usual-server-setup/
 
 apt-get update && apt-get upgrade -y
-apt-get install sudo openssh-server fail2ban unattended-upgrades debsums ssmtp unzip curl -y
+apt-get install sudo openssh-server fail2ban unattended-upgrades debsums ssmtp unzip curl bash-completion -y
 
 # Download Lynis
 cd ~
