@@ -19,9 +19,6 @@ sleep 1
 chmod 700 /usr/bin/wget /usr/bin/curl /usr/bin/GET /usr/bin/ftp /usr/bin/telnet 2> /dev/null
 dpkg -P lynx links 2> /dev/null
 
-# Knobble auto-installed compiler
-mv /usr/bin/as ~
-
 # Disable cron-jobs (exept for the root user)
 echo root > /etc/cron.allow
 service cron restart
@@ -129,6 +126,8 @@ echo "tripwire --test --email "$EmailAddress >> sysprep2
 echo "apt-get purge ufw iptables john john-data rpcbind exim4 sendmail sendmail-* postfix -y 2> /dev/null"  >> sysprep2
 # Enable AllowGroups under sshd_config (you're using SSH already, right???)
 echo "sudo sed -i 's/# AllowGroups/AllowGroups/g' /etc/ssh/sshd_config" >> sysprep2
+# Knobble auto-installed compiler
+echo "sudo mv /usr/bin/as ~" >> sysprep2
 # Notes for next boot
 echo "echo Check http://www.linuxquestions.org/questions/linux-newbie-8/tripwire-help-4175478323/"   >> sysprep2
 echo "echo and https://www.digitalocean.com/community/tutorials/how-to-use-tripwire-to-detect-server-intrusions-on-an-ubuntu-vps"  >> sysprep2
