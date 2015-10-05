@@ -134,11 +134,11 @@ echo "apt-get purge john john-data rpcbind exim4 sendmail sendmail-* postfix -y 
 # Enable AllowGroups under sshd_config (you're using SSH already, right???)
 echo "sudo sed -i 's/# AllowGroups/AllowGroups/g' /etc/ssh/sshd_config" >> sysprep2
 # Notes for next boot
-echo "Check http://www.linuxquestions.org/questions/linux-newbie-8/tripwire-help-4175478323/"   >> sysprep2
-echo "and https://www.digitalocean.com/community/tutorials/how-to-use-tripwire-to-detect-server-intrusions-on-an-ubuntu-vps"  >> sysprep2
-echo "for help on setting up Tripwire."  >> sysprep2
-echo "NOTE - you probably don't need /proc/dma; /proc/scsi; or /proc/kcore."  >> sysprep2
-echo "Execute ./moduli when you've got some time to kill."   >> sysprep2
+echo "echo Check http://www.linuxquestions.org/questions/linux-newbie-8/tripwire-help-4175478323/"   >> sysprep2
+echo "echo and https://www.digitalocean.com/community/tutorials/how-to-use-tripwire-to-detect-server-intrusions-on-an-ubuntu-vps"  >> sysprep2
+echo "echo for help on setting up Tripwire."  >> sysprep2
+echo "echo NOTE - you probably don't need /proc/dma; /proc/scsi; or /proc/kcore."  >> sysprep2
+echo "echo Execute ./moduli when you've got some time to kill."   >> sysprep2
 
 echo -e "ssh-keygen -G /tmp/moduli -b 4096 && ssh-keygen -T /etc/ssh/moduli -f /tmp/moduli" > moduli
 echo -e "rm ./moduli" >> moduli
