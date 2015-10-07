@@ -94,6 +94,9 @@ mv sysctl.conf /etc -f
 # Commit kernel changes
 update-grub
 
+# Set permissions for /etc/shadow
+chmod 400 /etc/shadow
+
 
 # Create 4096-bit RSA key
 ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa4096 < /dev/null
