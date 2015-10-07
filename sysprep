@@ -113,8 +113,21 @@ echo -e "TMOUT=300\nreadonly TMOUT\nexport TMOUT\numask 027" >> /etc/profile
 sed -i 's/UMASK\t\t022/UMASK\t\t027/g' /etc/login.defs
 sed -i 's/umask 022/umask 027/g' /etc/init.d/rc
 
-# Use NZ ntp pool
-sed -i 's/debian.pool.ntp/nz.pool.ntp/g' /etc/ntp.conf
+# Set up NTP
+echo "driftfile /var/lib/ntp/ntp.drift" > /etc/ntp.conf
+echo "statistics loopstats peerstats clockstats" >> /etc/ntp.conf
+echo "filegen loopstats file loopstats type day enable" >> /etc/ntp.conf
+echo "filegen peerstats file peerstats type day enable" >> /etc/ntp.conf
+echo "filegen clockstats file clockstats type day enable" >> /etc/ntp.conf
+echo "server 0.nz.pool.ntp.org iburst" >> /etc/ntp.conf
+echo "server 1.nz.pool.ntp.org iburst" >> /etc/ntp.conf
+echo "server 2.nz.pool.ntp.org iburst" >> /etc/ntp.conf
+echo "restrict -4 default kod notrap nomodify nopeer noquery" >> /etc/ntp.conf
+echo "restrict 127.0.0.1" >> /etc/ntp.conf
+echo "interface ignore wildcard" >> /etc/ntp.conf
+echo "interface listen eth0" >> /etc/ntp.conf
+
+
 
 # Build sysprep2
 # Install Tripwire and Tiger
