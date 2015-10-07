@@ -45,7 +45,9 @@ newaliases
 
 # Entropy & time-keeping
 apt-get install haveged rng-tools ntp -y
-echo tpm_rng >> /etc/modules
+
+# Load required modules (particularly re iptables -- kernel tweak to disable module loading kills it)
+echo -e "ip_tables\nx_tables\niptable_filter\ntpm_rng" >> /etc/modules
 
 # Disable USB & Firewire storage
 echo -e "blacklist usb-storage\nblacklist ohci1394\nblacklist sbp2\nblacklist dv1394\nblacklist raw1394\nblacklist video1394\nblacklist firewire-ohci\nblacklist firewire-sbp2" > /etc/modprobe.d/blacklist_storage.conf
@@ -144,7 +146,7 @@ echo "sudo sed -i 's/localhost/$MailServer/g' /etc/tripwire/twcfg.txt" >> syspre
 echo "sudo twadmin --create-cfgfile -S /etc/tripwire/site.key /etc/tripwire/twcfg.txt" >> sysprep2
 echo "tripwire --test --email "$EmailAddress >> sysprep2
 # Purge unwanted packages
-echo "apt-get purge ufw iptables john john-data rpcbind exim4 sendmail sendmail-* postfix -y 2> /dev/null"  >> sysprep2
+echo "apt-get purge john john-data rpcbind exim4 sendmail sendmail-* postfix -y 2> /dev/null"  >> sysprep2
 # Enable AllowGroups under sshd_config (you're using SSH already, right???)
 echo "sudo sed -i 's/# AllowGroups/AllowGroups/g' /etc/ssh/sshd_config" >> sysprep2
 # Knobble auto-installed compiler
