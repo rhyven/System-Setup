@@ -136,8 +136,8 @@ echo "sudo apt-get install tripwire tiger -y" > sysprep2
 # Fix Tiger for Linux 4 - https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=785589
 echo -e "cd /usr/lib/tiger/systems/Linux/\nsudo ln -s 3 4" >> sysprep2
 
-# Tell Tiger that sshd and ntpd are both OK
-echo -e "sudo sed -i 's/Tiger_Listening_ValidProcs='\''/Tiger_Listening_ValidProcs='\''sshd|ntpd''/g' /etc/tiger/tigerrc" >> sysprep2
+# Tell Tiger that sshd, dhclient, and ntpd are OK
+echo -e "sudo sed -i 's/Tiger_Listening_ValidProcs='\''/Tiger_Listening_ValidProcs='\''sshd|ntpd|dhclient''/g' /etc/tiger/tigerrc" >> sysprep2
 
 # Configure Tripwire to send emails
 echo "sudo sed -i 's/localhost/$MailServer/g' /etc/tripwire/twcfg.txt" >> sysprep2
