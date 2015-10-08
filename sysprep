@@ -29,7 +29,7 @@ echo "FSCKFIX=yes" >> /etc/default/rcS
 ## Tweaks from fmarier at http://feeding.cloud.geek.nz/posts/usual-server-setup/
 
 apt-get update && apt-get upgrade -y
-apt-get install sudo openssh-server fail2ban unattended-upgrades debsums ssmtp unzip curl bash-completion -y
+apt-get install sudo openssh-server fail2ban unattended-upgrades debsums ssmtp unzip curl bash-completion auditd -y
 
 # Download Lynis
 cd ~
@@ -132,6 +132,18 @@ echo "restrict 127.0.0.1" >> /etc/ntp.conf
 echo "interface ignore wildcard" >> /etc/ntp.conf
 echo "interface listen eth0" >> /etc/ntp.conf
 
+# Set up auditd
+echo "-a always,exit -S all -F dir=/bin -F perm=aw -k system-objects" >> /etc/audit/audit.rules
+echo "-a always,exit -S all -F dir=/sbin -F perm=aw -k system-objects" >> /etc/audit/audit.rules
+echo "-a always,exit -S all -F dir=/usr/bin -F perm=aw -k system-objects" >> /etc/audit/audit.rules
+echo "-a always,exit -S all -F dir=/usr/local/bin -F perm=aw -k system-objects" >> /etc/audit/audit.rules
+echo "-a always,exit -S all -F dir=/usr/local/sbin -F perm=aw -k system-objects" >> /etc/audit/audit.rules
+echo "-a always,exit -S all -F dir=/usr/sbin -F perm=aw -k system-objects" >> /etc/audit/audit.rules
+echo "-a always,exit -S all -F dir=/usr/lib/systemd -F perm=aw -k system-objects" >> /etc/audit/audit.rules
+echo "-a always,exit -S all -F dir=/etc -F perm=aw -k system-objects" >> /etc/audit/audit.rules
+echo "-a always,exit -S all -F dir=/lib -F perm=aw -k system-objects" >> /etc/audit/audit.rules
+echo "-a always,exit -S all -F dir=/lib64 -F perm=aw -k system-objects" >> /etc/audit/audit.rules
+echo "-a always,exit -S all -F dir=/usr/lib -F perm=aw -k system-objects" >> /etc/audit/audit.rules
 
 
 # Build sysprep2
