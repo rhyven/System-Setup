@@ -29,7 +29,7 @@ echo "FSCKFIX=yes" >> /etc/default/rcS
 ## Tweaks from fmarier at http://feeding.cloud.geek.nz/posts/usual-server-setup/
 
 apt-get update && apt-get upgrade -y
-apt-get install sudo openssh-server fail2ban unattended-upgrades debsums ssmtp unzip curl bash-completion auditd -y
+apt-get install sudo openssh-server fail2ban unattended-upgrades debsums heirloom-mailx ssmtp unzip curl bash-completion auditd -y
 
 # Download Lynis
 cd ~
@@ -41,6 +41,7 @@ echo -e "mailhub="$MailServer"\nroot="$EmailAddress"\nhostname="$(hostname -f) >
 
 # most tools send e-mail to root@localhost; redirect this to a working e-mail address:
 echo "root: "$EmailAddress >> /etc/aliases
+echo "root:"$EmailAddress":"$MailServer" >> /etc/ssmtp/revaliases
 newaliases
 
 # Entropy & time-keeping
