@@ -1,6 +1,6 @@
 #! /bin/bash
 EmailAddress=it@forlongs.co.nz
-MailServer=fibre.forlongs.co.nz
+MailServer=fff-mail.forlongs.local
 
 echo -n "MAKE SURE YOU'RE RUNNING AS ROOT! And make sure you've modified the mail server in this file -- currently $MailServer.  If not, press Ctrl+C NOW."
 sleep 1
