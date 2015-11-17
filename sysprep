@@ -47,7 +47,7 @@ echo "root:"$EmailAddress":"$MailServer >> /etc/ssmtp/revaliases
 apt-get install haveged rng-tools ntp -y
 
 # Load required modules (particularly re iptables -- kernel tweak to disable module loading kills it)
-echo -e "ip_tables\nx_tables\niptable_filter\ntpm_rng\nxt_tcpudp\nxt_conntrack\nxt_multiport\nf_defrag_ipv4\nnf_conntrack_ipv4" >> /etc/modules
+echo -e "ip_tables\nx_tables\niptable_filter\ntpm_rng\nxt_tcpudp\nxt_conntrack\nxt_multiport\nf_defrag_ipv4\nnf_conntrack_ipv4\nbutton" >> /etc/modules
 
 # Disable USB & Firewire storage
 echo -e "blacklist usb-storage\nblacklist ohci1394\nblacklist sbp2\nblacklist dv1394\nblacklist raw1394\nblacklist video1394\nblacklist firewire-ohci\nblacklist firewire-sbp2" > /etc/modprobe.d/blacklist_storage.conf
