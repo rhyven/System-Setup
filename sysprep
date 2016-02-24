@@ -147,8 +147,8 @@ echo "-a always,exit -S all -F dir=/usr/lib -F perm=aw -k system-objects" >> /et
 
 
 # Build sysprep2
-# Install Tripwire and Tiger
-echo "sudo apt-get install tripwire tiger -y" > sysprep2
+# Install Tiger
+echo "sudo apt-get install tiger -y" > sysprep2
 
 # Fix Tiger for Linux 4 - https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=785589
 echo -e "cd /usr/lib/tiger/systems/Linux/\nsudo ln -s 3 4" >> sysprep2
@@ -156,10 +156,6 @@ echo -e "cd /usr/lib/tiger/systems/Linux/\nsudo ln -s 3 4" >> sysprep2
 # Tell Tiger that sshd, dhclient, and ntpd are OK
 echo -e "sudo sed -i 's/Tiger_Listening_ValidProcs='\''/Tiger_Listening_ValidProcs='\''sshd|ntpd|dhclient''/g' /etc/tiger/tigerrc" >> sysprep2
 
-# Configure Tripwire to send emails
-echo "sudo sed -i 's/localhost/$MailServer/g' /etc/tripwire/twcfg.txt" >> sysprep2
-echo "sudo twadmin --create-cfgfile -S /etc/tripwire/site.key /etc/tripwire/twcfg.txt" >> sysprep2
-echo "tripwire --test --email "$EmailAddress >> sysprep2
 # Purge unwanted packages
 echo "apt-get purge john john-data rpcbind exim4 sendmail sendmail-* postfix -y 2> /dev/null"  >> sysprep2
 # Enable AllowGroups under sshd_config (you're using SSH already, right???)
@@ -167,10 +163,6 @@ echo "sudo sed -i 's/# AllowGroups/AllowGroups/g' /etc/ssh/sshd_config" >> syspr
 # Knobble auto-installed compiler
 echo "sudo mv /usr/bin/as ~" >> sysprep2
 # Notes for next boot
-echo "echo Check http://www.linuxquestions.org/questions/linux-newbie-8/tripwire-help-4175478323/"   >> sysprep2
-echo "echo and https://www.digitalocean.com/community/tutorials/how-to-use-tripwire-to-detect-server-intrusions-on-an-ubuntu-vps"  >> sysprep2
-echo "echo for help on setting up Tripwire."  >> sysprep2
-echo "echo NOTE - you probably don't need /proc/dma; /proc/scsi; or /proc/kcore."  >> sysprep2
 echo "echo Execute ./moduli when you've got some time to kill."   >> sysprep2
 
 echo -e "ssh-keygen -G /tmp/moduli -b 4096 && ssh-keygen -T /etc/ssh/moduli -f /tmp/moduli" > moduli
