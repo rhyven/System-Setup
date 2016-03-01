@@ -29,7 +29,7 @@ echo "FSCKFIX=yes" >> /etc/default/rcS
 ## Tweaks from fmarier at http://feeding.cloud.geek.nz/posts/usual-server-setup/
 
 apt-get update && apt-get upgrade -y
-apt-get install sudo openssh-server fail2ban unattended-upgrades debsums heirloom-mailx ssmtp unzip curl bash-completion auditd -y
+apt-get install sudo openssh-server fail2ban unattended-upgrades heirloom-mailx ssmtp unzip curl bash-completion auditd -y
 
 # Download Lynis
 cd ~
@@ -147,14 +147,6 @@ echo "-a always,exit -S all -F dir=/usr/lib -F perm=aw -k system-objects" >> /et
 
 
 # Build sysprep2
-# Install Tiger
-echo "sudo apt-get install tiger -y" > sysprep2
-
-# Fix Tiger for Linux 4 - https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=785589
-echo -e "cd /usr/lib/tiger/systems/Linux/\nsudo ln -s 3 4" >> sysprep2
-
-# Tell Tiger that sshd, dhclient, and ntpd are OK
-echo -e "sudo sed -i 's/Tiger_Listening_ValidProcs='\''/Tiger_Listening_ValidProcs='\''sshd|ntpd|dhclient''/g' /etc/tiger/tigerrc" >> sysprep2
 
 # Purge unwanted packages
 echo "apt-get purge john john-data rpcbind exim4 sendmail sendmail-* postfix -y 2> /dev/null"  >> sysprep2
