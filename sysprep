@@ -13,11 +13,13 @@ sleep 1
 echo -n "."
 sleep 1
 
-## Tweaks from https://klaver.it/linux/debian-security.txt:
+## Start with an update
+apt-get update && apt-get upgrade -y
 
-# remove or take away permissions of all system tools that can be used to download files at the command-line
-chmod 700 /usr/bin/wget /usr/bin/curl /usr/bin/GET /usr/bin/ftp /usr/bin/telnet 2> /dev/null
-dpkg -P lynx links 2> /dev/null
+## Apps from fmarier at http://feeding.cloud.geek.nz/posts/usual-server-setup/
+apt-get install sudo openssh-server ca-certificates fail2ban unattended-upgrades heirloom-mailx ssmtp unzip curl bash-completion auditd -y
+
+## Tweaks from https://klaver.it/linux/debian-security.txt:
 
 # Disable cron-jobs (exept for the root user)
 echo root > /etc/cron.allow
@@ -26,14 +28,13 @@ service cron restart
 # Let the server fix it's filesystem automatically when errors are found
 echo "FSCKFIX=yes" >> /etc/default/rcS
 
-## Tweaks from fmarier at http://feeding.cloud.geek.nz/posts/usual-server-setup/
-
-apt-get update && apt-get upgrade -y
-apt-get install sudo openssh-server fail2ban unattended-upgrades heirloom-mailx ssmtp unzip curl bash-completion auditd -y
+# remove or take away permissions of all system tools that can be used to download files at the command-line
+chmod 700 /usr/bin/wget /usr/bin/curl /usr/bin/GET /usr/bin/ftp /usr/bin/telnet 2> /dev/null
+dpkg -P lynx links 2> /dev/null
 
 # Download Lynis
 cd ~
-wget https://github.com/CISOfy/lynis/archive/master.zip --no-check-certificate
+wget https://github.com/CISOfy/lynis/archive/master.zip
 unzip master.zip
 
 # Set up SSMTP
@@ -97,7 +98,6 @@ update-grub
 # Set permissions for /etc/shadow
 chmod 400 /etc/shadow
 
-
 # Create 4096-bit RSA key
 ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa4096 < /dev/null
 
@@ -109,7 +109,7 @@ chown it:it /home/it/.ssh/*
 chmod 600 /home/it/.ssh/authorized_keys
 
 # Download and overwrite SSHD config file
-wget --no-check-certificate https://raw.githubusercontent.com/rhyven/ssh/master/sshd_config
+wget https://raw.githubusercontent.com/rhyven/ssh/master/sshd_config
 mv sshd_config /etc/ssh/sshd_config -f
 service ssh restart
 
