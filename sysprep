@@ -48,7 +48,25 @@ echo "root:"$EmailAddress":"$MailServer >> /etc/ssmtp/revaliases
 apt-get install haveged rng-tools ntp -y
 
 # Load required modules (particularly re iptables -- kernel tweak to disable module loading kills it)
-echo -e "ip_tables\nx_tables\niptable_filter\ntpm_rng\nxt_tcpudp\nxt_conntrack\nxt_multiport\nnf_defrag_ipv4\nnf_conntrack_ipv4\nbutton" >> /etc/modules
+echo virtio_balloon >> /etc/modules
+echo tpm_rng >> /etc/modules
+echo button >> /etc/modules
+echo ipt_REJECT >> /etc/modules
+echo nf_reject_ipv4 >> /etc/modules
+echo nf_conntrack_ipv4 >> /etc/modules
+echo nf_defrag_ipv4 >> /etc/modules
+echo xt_multiport >> /etc/modules
+echo xt_conntrack >> /etc/modules
+echo nf_conntrack >> /etc/modules
+echo xt_tcpudp >> /etc/modules
+echo iptable_filter >> /etc/modules
+echo ip_tables >> /etc/modules
+echo x_tables >> /etc/modules
+
+# Enable emailing in fail2ban
+sed -i 's/destemail = root@localhost/destemail = $EmailAddress/g' /etc/fail2ban/jail.conf 
+sed -i 's/action = %(action_)s/action = %(action_mwl)s/g' /etc/fail2ban/jail.conf 
+
 
 # Disable USB & Firewire storage
 echo -e "blacklist usb-storage\nblacklist ohci1394\nblacklist sbp2\nblacklist dv1394\nblacklist raw1394\nblacklist video1394\nblacklist firewire-ohci\nblacklist firewire-sbp2" > /etc/modprobe.d/blacklist_storage.conf
