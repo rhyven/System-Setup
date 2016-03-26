@@ -89,7 +89,9 @@ echo -e "Unattended-Upgrade::Origins-Pattern {\n\"o=Debian,n=jessie\";\n\"o=Debi
 # Install and enable AppArmor; disable IPv6 stack
 apt-get install apparmor apparmor-profiles apparmor-utils -y
 perl -pi -e 's,GRUB_CMDLINE_LINUX="(.*)"$,GRUB_CMDLINE_LINUX="$1 apparmor=1 security=apparmor ipv6.disable=1",' /etc/default/grub
-for f in *.* ; do aa-enforce /etc/apparmor.d/$f; done
+
+cp -n /usr/share/doc/apparmor-profiles/extras/* /etc/apparmor.d/
+for f in /etc/apparmor.d/*.* ; do aa-complain $f; done
 
 
 # Tweaks to sysctl.conf kernel settings
