@@ -1,6 +1,7 @@
 #! /bin/bash
-EmailAddress=it@forlongs.co.nz
-MailServer=fff-mail.forlongs.local
+EmailAddress=FIX ME  # The email address where alerts should go to
+MailServer=FIX ME  # The mail server in your environment
+UserName=FIX ME  # This should be the primary non-root username you expect to log in as
 
 echo -n "MAKE SURE YOU'RE RUNNING AS ROOT! And make sure you've modified the mail server in this file -- currently $MailServer.  If not, press Ctrl+C NOW."
 sleep 1
@@ -78,8 +79,8 @@ sed -i 's/CRON_CHECK=never/CRON_CHECK=daily/g' /etc/default/debsums
 echo -e "^/usr/bin/as$" > /etc/debsums-ignore
 
 addgroup ssh-user
-usermod -aG ssh-user it
-usermod -aG sudo it
+usermod -aG ssh-user $UserName
+usermod -aG sudo $UserName
 
 # Configure Unattended-Upgrades.  NOTE this config will reboot at 2am if reboot required
 dpkg-reconfigure -plow unattended-upgrades 
@@ -89,11 +90,6 @@ echo -e "Unattended-Upgrade::Origins-Pattern {\n\"o=Debian,n=jessie\";\n\"o=Debi
 # Install and enable AppArmor; disable IPv6 stack
 apt-get install apparmor apparmor-profiles apparmor-utils -y
 perl -pi -e 's,GRUB_CMDLINE_LINUX="(.*)"$,GRUB_CMDLINE_LINUX="$1 apparmor=1 security=apparmor ipv6.disable=1",' /etc/default/grub
-
-for f in /etc/apparmor.d/*.* ; do aa-enforce $f; done
-cp -n /usr/share/doc/apparmor-profiles/extras/* /etc/apparmor.d/
-for f in /usr/share/doc/apparmor-profiles/extras/*.* ; do aa-complain $f; done
-
 
 # Tweaks to sysctl.conf kernel settings
 cd ~
@@ -123,11 +119,11 @@ chmod 400 /etc/shadow
 ssh-keygen -t rsa -b 4096 -f /etc/ssh/ssh_host_rsa4096 < /dev/null
 
 # Create ~/.ssh/authorized_keys
-mkdir /home/it/.ssh
-echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGOOmq7XITJLExEheDCdDvlAyzSbMU0/PWXWoxc5V/5o Eric's PC" > /home/it/.ssh/authorized_keys
-chown it:it /home/it/.ssh
-chown it:it /home/it/.ssh/*
-chmod 600 /home/it/.ssh/authorized_keys
+mkdir /home/$UserName/.ssh
+touch /home/$UserName/.ssh/authorized_keys
+chown $UserName:$UserName /home/$UserName/.ssh
+chown $UserName:$UserName /home/$UserName/.ssh/*
+chmod 600 /home/$UserName/.ssh/authorized_keys
 
 # Download and overwrite SSHD config file
 wget https://raw.githubusercontent.com/rhyven/ssh/master/sshd_config
@@ -178,9 +174,15 @@ echo "sudo mv /usr/bin/as ~" >> sysprep2
 # Notes for next boot
 echo "echo Execute ./moduli when you've got some time to kill."   >> sysprep2
 
+# Apply AppArmour profiles after reboot
+echo -e "for f in /etc/apparmor.d/*.* ; do aa-enforce $f; done"  >> sysprep2
+echo -e "cp -n /usr/share/doc/apparmor-profiles/extras/* /etc/apparmor.d/" >> sysprep2
+echo -e "for f in /usr/share/doc/apparmor-profiles/extras/*.* ; do aa-complain $f; done" >> sysprep2
+
 echo -e "ssh-keygen -G /tmp/moduli -b 4096 && ssh-keygen -T /etc/ssh/moduli -f /tmp/moduli" > moduli
 echo -e "rm ./moduli" >> moduli
 chmod a+x moduli
+
 
 echo "REBOOT NOW, and then run bash ./sysprep2"
 rm ./sysprep
