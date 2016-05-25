@@ -171,14 +171,15 @@ echo "apt-get purge john john-data rpcbind exim4 sendmail sendmail-* postfix -y 
 echo "sudo sed -i 's/# AllowGroups/AllowGroups/g' /etc/ssh/sshd_config" >> sysprep2
 # Knobble auto-installed compiler
 echo "sudo mv /usr/bin/as ~" >> sysprep2
-# Notes for next boot
-echo "echo Execute ./moduli when you've got some time to kill."   >> sysprep2
 
 # Apply AppArmour profiles after reboot
 echo -e "for f in /etc/apparmor.d/*.* ; do aa-enforce $f; done"  >> sysprep2
 echo -e "cp -n /usr/share/doc/apparmor-profiles/extras/* /etc/apparmor.d/" >> sysprep2
 echo -e "for f in /usr/share/doc/apparmor-profiles/extras/*.* ; do aa-complain $f; done" >> sysprep2
 
+
+# Notes for next boot
+echo "echo -e Execute ./moduli when you've got some time to kill."   >> sysprep2
 echo -e "ssh-keygen -G /tmp/moduli -b 4096 && ssh-keygen -T /etc/ssh/moduli -f /tmp/moduli" > moduli
 echo -e "rm ./moduli" >> moduli
 chmod a+x moduli
