@@ -18,7 +18,7 @@ sleep 1
 apt-get update && apt-get upgrade -y
 
 ## Apps from fmarier at http://feeding.cloud.geek.nz/posts/usual-server-setup/
-apt-get install sudo openssh-server ca-certificates arpwatch samhain debsums fail2ban unattended-upgrades heirloom-mailx ssmtp unzip curl bash-completion auditd -y
+apt-get install sudo openssh-server ca-certificates samhain debsums fail2ban unattended-upgrades heirloom-mailx ssmtp unzip curl bash-completion auditd -y
 
 ## Tweaks from https://klaver.it/linux/debian-security.txt:
 
