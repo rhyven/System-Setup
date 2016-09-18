@@ -18,7 +18,7 @@ sleep 1
 apt-get update && apt-get upgrade -y
 
 ## Apps from fmarier at http://feeding.cloud.geek.nz/posts/usual-server-setup/
-apt-get install sudo openssh-server ca-certificates samhain debsums fail2ban unattended-upgrades heirloom-mailx ssmtp unzip curl bash-completion auditd -y
+apt-get install sudo openssh-server ca-certificates aide lynis debsums haveged ntp fail2ban unattended-upgrades heirloom-mailx ssmtp unzip curl bash-completion auditd -y
 
 ## Tweaks from https://klaver.it/linux/debian-security.txt:
 
@@ -33,20 +33,12 @@ echo "FSCKFIX=yes" >> /etc/default/rcS
 chmod 700 /usr/bin/wget /usr/bin/curl /usr/bin/GET /usr/bin/ftp /usr/bin/telnet 2> /dev/null
 dpkg -P lynx links 2> /dev/null
 
-# Download Lynis
-cd ~
-wget https://github.com/CISOfy/lynis/archive/master.zip
-unzip master.zip
-
 # Set up SSMTP
 echo -e "mailhub="$MailServer"\nroot="$EmailAddress"\nhostname="$(hostname -f) > /etc/ssmtp/ssmtp.conf
 
 # most tools send e-mail to root@localhost; redirect this to a working e-mail address:
 echo "root: "$EmailAddress >> /etc/aliases
 echo "root:"$EmailAddress":"$MailServer >> /etc/ssmtp/revaliases
-
-# Entropy & time-keeping
-apt-get install haveged rng-tools ntp -y
 
 # Load required modules (particularly re iptables -- kernel tweak to disable module loading kills it)
 echo virtio_balloon >> /etc/modules
@@ -65,8 +57,9 @@ echo ip_tables >> /etc/modules
 echo x_tables >> /etc/modules
 
 # Enable emailing in fail2ban
-sed -i 's/destemail = root@localhost/destemail = $EmailAddress/g' /etc/fail2ban/jail.conf 
-sed -i 's/action = %(action_)s/action = %(action_mwl)s/g' /etc/fail2ban/jail.conf 
+cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+sed -i 's/destemail = root@localhost/destemail = $EmailAddress/g' /etc/fail2ban/jail.local
+sed -i 's/action = %(action_)s/action = %(action_mwl)s/g' /etc/fail2ban/jail.local
 
 
 # Disable USB & Firewire storage
@@ -149,19 +142,18 @@ echo "restrict 127.0.0.1" >> /etc/ntp.conf
 echo "interface ignore wildcard" >> /etc/ntp.conf
 echo "interface listen eth0" >> /etc/ntp.conf
 
-# Set up auditd
-echo "-a always,exit -S all -F dir=/bin -F perm=aw -k system-objects" >> /etc/audit/audit.rules
-echo "-a always,exit -S all -F dir=/sbin -F perm=aw -k system-objects" >> /etc/audit/audit.rules
-echo "-a always,exit -S all -F dir=/usr/bin -F perm=aw -k system-objects" >> /etc/audit/audit.rules
-echo "-a always,exit -S all -F dir=/usr/local/bin -F perm=aw -k system-objects" >> /etc/audit/audit.rules
-echo "-a always,exit -S all -F dir=/usr/local/sbin -F perm=aw -k system-objects" >> /etc/audit/audit.rules
-echo "-a always,exit -S all -F dir=/usr/sbin -F perm=aw -k system-objects" >> /etc/audit/audit.rules
-echo "-a always,exit -S all -F dir=/usr/lib/systemd -F perm=aw -k system-objects" >> /etc/audit/audit.rules
-echo "-a always,exit -S all -F dir=/etc -F perm=aw -k system-objects" >> /etc/audit/audit.rules
-echo "-a always,exit -S all -F dir=/lib -F perm=aw -k system-objects" >> /etc/audit/audit.rules
-echo "-a always,exit -S all -F dir=/lib64 -F perm=aw -k system-objects" >> /etc/audit/audit.rules
-echo "-a always,exit -S all -F dir=/usr/lib -F perm=aw -k system-objects" >> /etc/audit/audit.rules
-
+# Set up some basic rules for auditd
+echo "-a always,exit -S all -F dir=/bin -F perm=aw -k system-objects" >> /etc/audit/rules.d/audit.rules
+echo "-a always,exit -S all -F dir=/sbin -F perm=aw -k system-objects" >> /etc/audit/rules.d/audit.rules
+echo "-a always,exit -S all -F dir=/usr/bin -F perm=aw -k system-objects" >> /etc/audit/rules.d/audit.rules
+echo "-a always,exit -S all -F dir=/usr/local/bin -F perm=aw -k system-objects" >> /etc/audit/rules.d/audit.rules
+echo "-a always,exit -S all -F dir=/usr/local/sbin -F perm=aw -k system-objects" >> /etc/audit/rules.d/audit.rules
+echo "-a always,exit -S all -F dir=/usr/sbin -F perm=aw -k system-objects" >> /etc/audit/rules.d/audit.rules
+echo "-a always,exit -S all -F dir=/usr/lib/systemd -F perm=aw -k system-objects" >> /etc/audit/rules.d/audit.rules
+echo "-a always,exit -S all -F dir=/etc -F perm=aw -k system-objects" >> /etc/audit/rules.d/audit.rules
+echo "-a always,exit -S all -F dir=/lib -F perm=aw -k system-objects" >> /etc/audit/rules.d/audit.rules
+echo "-a always,exit -S all -F dir=/lib64 -F perm=aw -k system-objects" >> /etc/audit/rules.d/audit.rules
+echo "-a always,exit -S all -F dir=/usr/lib -F perm=aw -k system-objects" >> /etc/audit/rules.d/audit.rules
 
 # Build sysprep2
 
@@ -173,13 +165,17 @@ echo "sudo sed -i 's/# AllowGroups/AllowGroups/g' /etc/ssh/sshd_config" >> syspr
 echo "sudo mv /usr/bin/as ~" >> sysprep2
 
 # Apply AppArmour profiles after reboot
+# The logrotate apparmor profile has a bug; set this one to complain instead of enforce
 echo -e "for f in /etc/apparmor.d/*.* ; do aa-enforce \$f; done"  >> sysprep2
 echo -e "cp -n /usr/share/doc/apparmor-profiles/extras/* /etc/apparmor.d/" >> sysprep2
 echo -e "for f in /usr/share/doc/apparmor-profiles/extras/*.* ; do aa-complain \$f; done" >> sysprep2
+echo -e "aa-complain /etc/apparmor.d/etc.cron.daily.logrotate" >> sysprep2
 
 
 # Notes for next boot
 echo "echo -e Execute ./moduli when you've got some time to kill."   >> sysprep2
+echo "echo -e Make sure you run aideinit once your system is fully configured" >> sysprep2
+
 echo -e "ssh-keygen -G /tmp/moduli -b 4096 && ssh-keygen -T /etc/ssh/moduli -f /tmp/moduli" > moduli
 echo -e "rm ./moduli" >> moduli
 chmod a+x moduli
