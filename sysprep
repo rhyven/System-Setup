@@ -170,6 +170,7 @@ echo -e "for f in /etc/apparmor.d/*.* ; do aa-enforce \$f; done"  >> sysprep2
 echo -e "cp -n /usr/share/doc/apparmor-profiles/extras/* /etc/apparmor.d/" >> sysprep2
 echo -e "for f in /usr/share/doc/apparmor-profiles/extras/*.* ; do aa-complain \$f; done" >> sysprep2
 echo -e "aa-complain /etc/apparmor.d/etc.cron.daily.logrotate" >> sysprep2
+echo -e "aa-complain /etc/apparmor.d/usr.sbin.sshd" >> sysprep2
 
 
 # Notes for next boot
