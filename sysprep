@@ -171,6 +171,10 @@ echo -e "cp -n /usr/share/doc/apparmor-profiles/extras/* /etc/apparmor.d/" >> sy
 echo -e "for f in /usr/share/doc/apparmor-profiles/extras/*.* ; do aa-complain \$f; done" >> sysprep2
 echo -e "aa-complain /etc/apparmor.d/etc.cron.daily.logrotate" >> sysprep2
 echo -e "aa-complain /etc/apparmor.d/usr.sbin.sshd" >> sysprep2
+echo -e "aa-complain /etc/apparmor.d/usr.sbin.man" >> sysprep2
+echo -e "aa-complain /etc/apparmor.d/usr.sbin.useradd" >> sysprep2
+echo -e "aa-complain /etc/apparmor.d/usr.sbin.userdel" >> sysprep2
+
 
 
 # Notes for next boot
